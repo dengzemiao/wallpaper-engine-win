@@ -198,8 +198,9 @@ class WallpaperChangerApp:
         self.startup_frame.pack(pady=10)
         self.startup_checkbox = tk.Checkbutton(self.startup_frame, variable=self.startup_var, command=self.toggle_startup)
         self.startup_checkbox.pack(side='left')
-        self.startup_label = tk.Label(self.startup_frame, text="开机启动", anchor='w', width=20)  # 设置固定宽度
+        self.startup_label = tk.Label(self.startup_frame, text="开机启动（调试中...）", anchor='w', width=20)  # 设置固定宽度
         self.startup_label.pack(side='left')
+        self.startup_checkbox.config(state='disabled')
 
         # 退出程序
         self.exit_button = tk.Button(self.root, text="退出应用", command=self.exit_app)
@@ -436,7 +437,16 @@ class WallpaperChangerApp:
             create_tray_icon(icon_path),
             menu=self.create_tray_menu()
         )
+
+        # 1、阻塞运行，在它执行后则不能执行任何代码
         self.icon.run()
+
+        # 2、非阻塞运行，后台运行，在它执行后还可以继续执行代码
+        # self.icon.run_detached()
+        # # 在这里可以执行其他操作
+        # while True:
+        #     print("后台任务在运行...")
+        #     time.sleep(2)
 
     # 创建托盘菜单
     def create_tray_menu(self):
@@ -456,10 +466,13 @@ class WallpaperChangerApp:
             pystray.MenuItem('下一张', self.next_wallpaper),
             start_item,
             stop_item,
+            pystray.Menu.SEPARATOR, # 分割线
             set_startup_item,
             remove_startup_item,
-            pystray.MenuItem('显示', self.show_window),
-            pystray.MenuItem('退出', self.exit_app),
+            pystray.MenuItem('显示', self.show_window, default=True), # 默认为鼠标单击事件
+            # pystray.MenuItem('单击', self.touch1, default=True, enabled=False, visible=False),
+            # pystray.MenuItem('退出', lambda x: print(2)), lambda 表达式是局部的，适合于在小范围内使用，不适合复杂逻辑
+            pystray.MenuItem('退出', self.exit_app)
         ]
 
         return pystray.Menu(*menu_items)
@@ -509,9 +522,12 @@ if __name__ == "__main__":
     
     # 是否开机启动
     # if is_startup():
-        # messagebox.showinfo("提示", "程序通过开机启动运行")
+    #     time.sleep(60)
+    #     messagebox.showinfo("提示", "程序通过开机启动运行")
     # else:
-        # messagebox.showinfo("提示", "程序通过手动启动运行")
+    #     messagebox.showinfo("提示", "程序通过手动启动运行")
+    
+    # messagebox.showinfo("提示", "开始准备页面与配置了，程序即将开始运行")
 
     # 是否存在已运行的应用程序
     found_region = runWin32pro(app_name)

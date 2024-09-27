@@ -455,8 +455,8 @@ class WallpaperChangerApp:
         stop_item = pystray.MenuItem('停止切换', self.stop_changing, visible=self.running)
 
         # 添加开机启动勾选切换按钮
-        set_startup_item = pystray.MenuItem('开机启动', self.set_startup, visible=not self.startup_enabled)
-        remove_startup_item = pystray.MenuItem('取消开机启动', self.remove_startup, visible=self.startup_enabled)
+        # set_startup_item = pystray.MenuItem('开机启动', self.set_startup, visible=not self.startup_enabled)
+        # remove_startup_item = pystray.MenuItem('取消开机启动', self.remove_startup, visible=self.startup_enabled)
 
         # 定义菜单
         menu_items = [
@@ -467,8 +467,8 @@ class WallpaperChangerApp:
             start_item,
             stop_item,
             pystray.Menu.SEPARATOR, # 分割线
-            set_startup_item,
-            remove_startup_item,
+            # set_startup_item,
+            # remove_startup_item,
             pystray.MenuItem('显示', self.show_window, default=True), # 默认为鼠标单击事件
             # pystray.MenuItem('单击', self.touch1, default=True, enabled=False, visible=False),
             # pystray.MenuItem('退出', lambda x: print(2)), lambda 表达式是局部的，适合于在小范围内使用，不适合复杂逻辑

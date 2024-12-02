@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw
 import pystray
 import win32gui
 # import win32con
+from send2trash import send2trash
 
 # 应用用户数据目录
 # appdata_dir = os.getenv('APPDATA')
@@ -170,13 +171,13 @@ class WallpaperChangerApp:
         self.next_button = tk.Button(self.button_frame, text="下一张", command=self.next_wallpaper)
         self.next_button.grid(row=0, column=1, padx=10)
 
-        # 删除壁纸按钮
-        self.delete_button = tk.Button(self.root, text="删除壁纸", command=self.delete_wallpaper)
-        self.delete_button.pack(pady=10)
-
         # 开始/停止切换按钮
         self.toggle_button = tk.Button(self.root, text="开始切换", command=self.toggle_changing)
         self.toggle_button.pack(pady=10)
+        
+        # 删除壁纸按钮
+        self.delete_button = tk.Button(self.root, text="删除壁纸", command=self.delete_wallpaper)
+        self.delete_button.pack(pady=10)
 
         # 随机切换复选框
         self.random_var = tk.BooleanVar()
@@ -250,7 +251,10 @@ class WallpaperChangerApp:
     # 删除壁纸
     def delete_wallpaper(self):
         try:
-            os.remove(self.image_files[self.current_index])
+            # 直接移除，没法复原
+            # os.remove(self.image_files[self.current_index])
+            # 移除到回收站
+            send2trash(os.path.normpath(self.image_files[self.current_index]))
             self.refresh_images()
         except FileNotFoundError:
             messagebox.showerror("错误", "指定的文件不存在。")

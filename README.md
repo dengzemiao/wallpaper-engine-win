@@ -22,6 +22,12 @@
     $ pip install pywin32
     ```
 
+  - 将删除的壁纸存放到回收站内
+
+    ```sh
+    $ pip install send2trash
+    ```
+
 - 打包
 
   - 打包插件安装
@@ -44,6 +50,12 @@
 
     ```sh
     $ pyinstaller --onefile --windowed --icon=icon.ico --add-data "icon.ico;." --name "WallpaperSwitcher" main.py
+    ```
+
+  - 本地启动
+
+    ```sh
+    $ python main.py
     ```
 
 - 【辅助】确认开机启动是否设置成功：

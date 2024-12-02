@@ -170,6 +170,10 @@ class WallpaperChangerApp:
         self.next_button = tk.Button(self.button_frame, text="下一张", command=self.next_wallpaper)
         self.next_button.grid(row=0, column=1, padx=10)
 
+        # 删除壁纸按钮
+        self.delete_button = tk.Button(self.root, text="删除壁纸", command=self.delete_wallpaper)
+        self.delete_button.pack(pady=10)
+
         # 开始/停止切换按钮
         self.toggle_button = tk.Button(self.root, text="开始切换", command=self.toggle_changing)
         self.toggle_button.pack(pady=10)
@@ -242,6 +246,18 @@ class WallpaperChangerApp:
         except Exception as e:
             messagebox.showerror("错误", f"发生未知错误：{e}")
             return False
+    
+    # 删除壁纸
+    def delete_wallpaper(self):
+        try:
+            os.remove(self.image_files[self.current_index])
+            self.refresh_images()
+        except FileNotFoundError:
+            messagebox.showerror("错误", "指定的文件不存在。")
+        except PermissionError:
+            messagebox.showerror("错误", "没有权限删除该文件。")
+        except Exception as e:
+            messagebox.showerror("错误", f"发生未知错误：{e}")
 
     # 切换开始/停止按钮
     def toggle_changing(self):

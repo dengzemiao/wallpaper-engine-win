@@ -11,7 +11,8 @@ import random
 from PIL import Image, ImageDraw
 import pystray
 import win32gui
-# import win32con
+import win32con
+import ctypes
 from send2trash import send2trash
 
 # 应用用户数据目录
@@ -65,12 +66,30 @@ def create_image(width, height, color1, color2):
         fill=color2)
     return image
 
-def runWin32pro (text):
+# 查找指定标题的窗口
+def find_window(text):
+    # 寻找已有的窗口
+    def enum_windows(hwnd, results):
+        # 所有窗口进行排查
+        window_text = win32gui.GetWindowText(hwnd)
+        if text == window_text:
+            results.append(hwnd)
+        # 页面显示窗口进行排查
+        # if win32gui.IsWindowVisible(hwnd):
+        #     window_text = win32gui.GetWindowText(hwnd)
+        #     if text == window_text:
+        #         results.append(hwnd)
+    hwnds = []
+    win32gui.EnumWindows(enum_windows, hwnds)
+    return hwnds
+
+# 找到窗口在页面上的区域
+def find_window_react (text):
     # 找到的窗口区域
-    found_region = None
+    find_react = None
     # 枚举所有窗口
     def enum_windows(hwnd, results):
-        nonlocal found_region
+        nonlocal find_react
         # window_class = win32gui.GetClassName(hwnd)
         # if text in window_class:  # 假设微信窗口类名包含 WeChat
         #     rect = win32gui.GetWindowRect(hwnd)
@@ -81,12 +100,37 @@ def runWin32pro (text):
             rect = win32gui.GetWindowRect(hwnd)
             # print(f"窗口位置: (Left: {rect[0]}, Top: {rect[1]})")
             # print(f"窗口大小: (Width: {rect[2] - rect[0]}, Height: {rect[3] - rect[1]})")
-            found_region = (rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1])
+            find_react = (rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1])
             # print(f"Region for pywin32: {found_region}")
     # 开始枚举所有窗口
     win32gui.EnumWindows(enum_windows, None)
     # 返回找到的窗口区域
-    return found_region
+    return find_react
+
+# 激活窗口
+def active_window(hwnd):
+    # 激活窗口
+    ctypes.windll.user32.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
+    win32gui.SetForegroundWindow(hwnd)
+
+    # 恢复窗口
+    # win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)  # 恢复窗口
+    # time.sleep(0.1)  # 等待窗口恢复
+    # win32gui.SetForegroundWindow(hwnd)  # 将窗口置于前端
+    
+    # 如果窗口仍然没有刷新，尝试模拟鼠标或键盘事件
+    # win32gui.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, 0, 0)
+    # win32gui.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, 0)
+
+    # 恢复窗口并确保它正常显示
+    # ctypes.windll.user32.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)  # 恢复到正常大小
+    # win32gui.SetForegroundWindow(hwnd)  # 将窗口置于前台
+    # win32gui.SetFocus(hwnd)  # 获取焦点
+    # time.sleep(0.5)  # 等待窗口完全恢复
+    # # 确保消息循环继续执行
+    # win32gui.PumpMessages()
+
+
 
 # 创建Tkinter应用
 class WallpaperChangerApp:
@@ -549,9 +593,26 @@ if __name__ == "__main__":
     
     # messagebox.showinfo("提示", "开始准备页面与配置了，程序即将开始运行")
 
+    # # 是否存在已运行的应用程序
+    # find_react = find_window_react(app_name)
+    # if find_react is None:
+    #     root = tk.Tk()
+    #     app = WallpaperChangerApp(root)
+    #     try:
+    #         # 启动Tkinter主循环
+    #         root.mainloop()
+    #     except KeyboardInterrupt:
+    #         # print("应用程序退出")
+    #         sys.exit()  # 退出程序
+    # else:
+    #     sys.exit()  # 退出程序
+
     # 是否存在已运行的应用程序
-    found_region = runWin32pro(app_name)
-    if found_region is None:
+    hwnds = find_window(app_name)
+    if hwnds:
+        # active_window(hwnds[0])  # 如果窗口存在，激活它
+        sys.exit(0)  # 退出当前程序，防止新实例启动
+    else:
         root = tk.Tk()
         app = WallpaperChangerApp(root)
         try:
@@ -560,5 +621,3 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             # print("应用程序退出")
             sys.exit()  # 退出程序
-    else:
-        sys.exit()  # 退出程序

@@ -141,6 +141,7 @@ class WallpaperChangerApp:
         self.startup_enabled = False  # 开机启动状态
         self.random_enabled = False  # 随机切换图片状态
         self.refresh_reset_enabled = False  # 随机切换图片状态
+        self.close_minimize_enabled = True  # 最小化到托盘
         self.running = False
         self.thread = None
         self.image_files = []
@@ -240,6 +241,15 @@ class WallpaperChangerApp:
         self.refresh_reset_checkbox.pack(side='left')
         self.refresh_reset_label = tk.Label(self.refresh_reset_frame, text="刷新重置顺序（置 0）", anchor='w', width=20)  # 设置固定宽度
         self.refresh_reset_label.pack(side='left')
+
+        # 右上角关闭按钮会最小化到托盘
+        self.close_minimize_var = tk.BooleanVar()
+        self.close_minimize_frame = tk.Frame(self.root)
+        self.close_minimize_frame.pack(pady=10)
+        self.close_minimize_checkbox = tk.Checkbutton(self.close_minimize_frame, variable=self.close_minimize_var, command=self.close_minimize)
+        self.close_minimize_checkbox.pack(side='left')
+        self.close_minimize_label = tk.Label(self.close_minimize_frame, text="最小化到托盘（右上X）", anchor='w', width=20)  # 设置固定宽度
+        self.close_minimize_label.pack(side='left')
 
         # 开机启动复选框
         self.startup_var = tk.BooleanVar()
@@ -394,6 +404,11 @@ class WallpaperChangerApp:
         self.refresh_reset_enabled = self.refresh_reset_var.get()
         self.save_config()  # 保存随机状态
 
+    # 关闭窗口最小化
+    def close_minimize(self):
+        self.close_minimize_enabled = self.close_minimize_var.get()
+        self.save_config()  # 保存随机状态
+
     # 在后台线程中更换壁纸，防止卡顿
     def set_wallpaper_in_background(self, image_path):
         # 保存配置
@@ -452,7 +467,8 @@ class WallpaperChangerApp:
             "running": self.running,
             "startup_enabled": self.startup_enabled,
             "random_enabled": self.random_enabled,
-            "refresh_reset_enabled": self.refresh_reset_enabled
+            "refresh_reset_enabled": self.refresh_reset_enabled,
+            "close_minimize_enabled": self.close_minimize_enabled
         }
         with open(config_path, 'w') as f:
             json.dump(config, f)
@@ -469,12 +485,14 @@ class WallpaperChangerApp:
                 self.startup_enabled = config.get("startup_enabled", False)
                 self.random_enabled = config.get("random_enabled", False)
                 self.refresh_reset_enabled = config.get("refresh_reset_enabled", False)
+                self.close_minimize_enabled = config.get("close_minimize_enabled", True)
                 # 更新UI
                 self.interval_entry.delete(0, tk.END)
                 self.interval_entry.insert(0, str(self.interval))
                 self.startup_var.set(self.startup_enabled)
                 self.random_var.set(self.random_enabled)
                 self.refresh_reset_var.set(self.refresh_reset_enabled)
+                self.close_minimize_var.set(self.close_minimize_enabled)
                 if self.folder_path:
                     self.folder_label.config(text=f"已选择: {self.folder_path}")
                     self.refresh_images()
@@ -548,10 +566,16 @@ class WallpaperChangerApp:
 
     # 最小化到系统托盘
     def minimize_to_tray(self):
-        # 隐藏窗口
-        self.hide_window()
-        # 启动托盘图标
-        self.start_tray_icon()
+        if self.close_minimize_enabled:
+            print("最小化到托盘")
+            # 隐藏窗口
+            self.hide_window()
+            # 启动托盘图标
+            self.start_tray_icon()
+        else:
+            print("不允许最小化到托盘")
+            # 退出应用程序
+            self.exit_app()
 
     # 隐藏窗口
     def hide_window(self):
@@ -590,7 +614,6 @@ if __name__ == "__main__":
     #     messagebox.showinfo("提示", "程序通过开机启动运行")
     # else:
     #     messagebox.showinfo("提示", "程序通过手动启动运行")
-    
     # messagebox.showinfo("提示", "开始准备页面与配置了，程序即将开始运行")
 
     # # 是否存在已运行的应用程序

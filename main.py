@@ -110,13 +110,13 @@ def find_window_react (text):
 # 激活窗口
 def active_window(hwnd):
     # 激活窗口
-    ctypes.windll.user32.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
-    win32gui.SetForegroundWindow(hwnd)
+    # ctypes.windll.user32.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
+    # win32gui.SetForegroundWindow(hwnd)
 
     # 恢复窗口
-    # win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)  # 恢复窗口
-    # time.sleep(0.1)  # 等待窗口恢复
-    # win32gui.SetForegroundWindow(hwnd)  # 将窗口置于前端
+    win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)  # 恢复窗口
+    time.sleep(0.1)  # 等待窗口恢复
+    win32gui.SetForegroundWindow(hwnd)  # 将窗口置于前端
     
     # 如果窗口仍然没有刷新，尝试模拟鼠标或键盘事件
     # win32gui.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, 0, 0)

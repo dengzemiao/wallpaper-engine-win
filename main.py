@@ -12,7 +12,6 @@ from PIL import Image, ImageDraw
 import pystray
 import win32gui
 import win32con
-import ctypes
 from send2trash import send2trash
 
 # 应用用户数据目录
